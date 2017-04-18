@@ -10,7 +10,7 @@
 <body>
   Page
   <script>
-    const socket = io();
+    const socket = io.connect('ws://localhost:9000');
     socket.emit('message', 'this is a message');
   </script>
 </body>

@@ -1,24 +1,24 @@
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const WebSocket = require('ws');
 
-app.get('/', (req, res) => {
-  console.log('request received');
-  res.sendFile(__dirname + '/index.html');
+const server = new WebSocket.Server({
+  port: 9000,
+  perMessageDeflate: false
 });
 
-io.on('connection', socket => {
-  console.log('user connected');
+server.on('connection', function connection(socket) {
+  socket.send('welcome')
+  console.log(socket.upgradeReq.headers['sec-websocket-key'] + ' connected');
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
 
-  socket.on('message', message => {
-    console.log(message);
+  socket.on('message', function incoming(message) {
+    console.log(`${socket.upgradeReq.headers['sec-websocket-key']}: ${message}`);
+    server.broadcast(message);
   });
 });
 
-http.listen(9000, () => {
-  console.log('http server started');
-});
+server.broadcast = message => {
+  server.clients.forEach(client => {
+    if(client.readyState === WebSocket.OPEN)
+      client.send(message);
+  })
+};
