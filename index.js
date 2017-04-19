@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
 
 const server = new WebSocket.Server({
-  port: 9000,
+  port: 10000,
   perMessageDeflate: false
 });
+
+console.log('server started');
 
 server.on('connection', function connection(socket) {
   socket.send('welcome')
